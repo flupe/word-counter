@@ -62,7 +62,7 @@ function countWords(txt) {
     }
 
     // elided words
-    if (c == "'" && elided.includes(word())) {
+    if (c == "'" && elided.includes(word().toLowerCase())) {
       count++
       p = ++i
       continue
