@@ -1,3 +1,6 @@
+// TODO: actually maybe using a prefix tree is overkill (and uses too much memory)
+// TODO: cleanup
+
 const $ = document.getElementById.bind(document)
 const textarea = $('textarea')
 const counter  = $('word-counter')
@@ -44,7 +47,8 @@ function countWords(txt) {
 
     if (isWhiteSpace(c)) {
       // whitespace is at the end of a word
-      if ((p < i && !composed || isValid(word())) || (composed && !composed_counted)) {
+      // TODO: this is shit
+      if (p < i && (!composed || (composed && isValid(word()))) || (composed && !composed_counted)) {
         count++
       }
 
@@ -79,15 +83,23 @@ function countWords(txt) {
     }
 
     // isolated symbols are skipped
-    if (isSymbol(c) && p == i) {
-      p = ++i
-      continue
+    if (isSymbol(c)) {
+      if (composed && isValid(word())) {
+        count++
+        composed_counted = true
+        p = ++i
+        continue
+      }
+      else if (p == i) {
+        p = ++i
+        continue
+      }
     }
 
     i++
   }
 
-  if ((p < i && (!composed || isValid(word()))) || (composed && !composed_counted)) count++
+  if ((p < i && (!composed || (composed && isValid(word())))) || (composed && !composed_counted)) count++
 
   return count
 }
