@@ -44,7 +44,7 @@ function countWords(txt) {
 
     if (isWhiteSpace(c)) {
       // whitespace is at the end of a word
-      if (p < i && (!composed || isValid(word()) || !composed_counted)) {
+      if ((p < i && !composed || isValid(word())) || (composed && !composed_counted)) {
         count++
       }
 
@@ -87,7 +87,7 @@ function countWords(txt) {
     i++
   }
 
-  if (p < i && (!composed || isValid(word()) || !composed_counted)) count++
+  if ((p < i && (!composed || isValid(word()))) || (composed && !composed_counted)) count++
 
   return count
 }
