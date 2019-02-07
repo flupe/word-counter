@@ -2,14 +2,27 @@ const $ = document.getElementById.bind(document)
 const textarea = $('textarea')
 const counter  = $('word-counter')
 
-let isWhiteSpace = x => ' \t\n\r\v'.indexOf(x) > -1
+let useDict      = false
+let isWhiteSpace = x => ' \t\n\r\v\xa0'.indexOf(x) > -1
+let isValid      = w => useDict ? check(w) : w != 't'
+
+const dict = {}
+
+function check(word) {
+  let tree = dict
+  for (let i = 0, c = word.length; i < c; i++) {
+    let x = word[i]
+    if (!(tree = tree[x])) return false
+  }
+  return tree.$ || false
+}
 
 // TODO: fix this only for french valid chars?
 let isSymbol     = x => {
   let c = x.charCodeAt(0)
-  return !((48 <= c && c <= 57)    // decimals
-         ||(65 <= c && c <= 90)    // uppercase
-         ||(97 <= c && c <= 122)   // lowercase
+  return !((48  <= c && c <= 57 )   // decimals
+         ||(65  <= c && c <= 90 )   // uppercase
+         ||(97  <= c && c <= 122)   // lowercase
          ||(192 <= c && c <= 246))  // extended 1
 }
 
@@ -21,31 +34,46 @@ function countWords(txt) {
   let count = 0
   let length = txt.length
 
+  let composed = false
+  let composed_counted = false
+
+  let word = () => txt.substring(p, i)
+
   while (i < length) {
     let c = txt[i]
 
     if (isWhiteSpace(c)) {
       // whitespace is at the end of a word
-      if (p < i) count++
+      if (p < i && (!composed || isValid(word()) || !composed_counted)) {
+        count++
+      }
+
       while (isWhiteSpace(txt[++i])) {}
+
+      composed = false
+      composed_counted = false
+
       p = i
       continue
     }
 
     // elided words
-    if (c == "'" && elided.includes(txt.substring(p, i))) {
-      console.log(i, txt.substring(p, i))
+    if (c == "'" && elided.includes(word())) {
       count++
       p = ++i
       continue
     }
 
-    // TODO: check if word is valid on its own before counting it
-    //       this means we need an efficient way to check the entire dictionnary
+    // composed words
     if (c == '-') {
+      composed = true
       if (p < i) {
+        // a word is counted only if it has meaning when isolated
+        if (isValid(word())) {
+          count++
+          composed_counted = true
+        }
         p = ++i
-        count++
       }
       continue
     }
@@ -56,11 +84,10 @@ function countWords(txt) {
       continue
     }
 
-    // mots
     i++
   }
 
-  if (p < i) count++
+  if (p < i && (!composed || isValid(word()) || !composed_counted)) count++
 
   return count
 }
@@ -70,6 +97,43 @@ function compute() {
   let count = countWords(txt)
   counter.innerText = count
 }
+
+fetch('./dict.txt')
+  .then(function(response) {
+    let reader = response.body.getReader()
+    let decoder = new TextDecoder('utf-8')
+    let tree = dict
+
+    reader.read().then(function processDict({ done, value }) {
+      if (done) {
+        useDict = true
+        $('loading').remove()
+        compute()
+        return
+      }
+
+      let txt = decoder.decode(new Uint8Array(value))
+
+      for (let i = 0, c = txt.length; i < c; i++) {
+        if (txt[i] == '\n') {
+          tree.$ = true
+          tree = dict
+        }
+        else {
+          let x = txt[i]
+          if (!tree[x]) tree[x] = {}
+          tree = tree[x]
+        }
+      }
+
+      return reader.read().then(processDict)
+    })
+  })
+
+  .catch(function(e) {
+    console.error('Une erreur est survenue pendant le chargement du dictionnaire.')
+    console.log(e)
+  })
 
 textarea.addEventListener('input', compute, false)
 
