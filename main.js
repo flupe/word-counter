@@ -76,16 +76,14 @@ function countWords(txt) {
     }
 
     // composed words
-    if (c == '-') {
+    if (c == '-' && p < i) {
       composed = true
-      if (p < i) {
-        // a word is counted only if it has meaning when isolated
-        if (isValid(word())) {
-          count++
-          composed_counted = true
-        }
-        p = ++i
+      // a word is counted only if it has meaning when isolated
+      if (isValid(word())) {
+        count++
+        composed_counted = true
       }
+      p = ++i
       continue
     }
 
