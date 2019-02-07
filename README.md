@@ -3,7 +3,9 @@ Il respecte les règles suivantes :
 
 ## Mots contractés et voyelles élidées
 
-Comptent pour un mot. Exemples :
+Comptent pour un mot.
+
+Exemples :
 - `C'est faux` (3 mots)
 - `Je n'aime pas ça` (5 mots)
 
@@ -14,8 +16,7 @@ Les lettres euphoniques ne sont pas considérées comme des mots.
 Exemples :
 - `Où va-t-il ?` (3 mots)
 - `N'y a-t-il pas de place ?` (7 mots)
-
-Attention : Le `l` euphonique n'est pas encore pris en compte. Ainsi, 'que l'on fasse` comptera pour 4 mots en lieu et place des 3 attendus.
+- `Que l'on fasse` (3 mots)
 
 ## Mots composés
 

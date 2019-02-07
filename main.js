@@ -1,15 +1,13 @@
 // TODO: actually maybe using a prefix tree is overkill (and uses too much memory)
 // TODO: cleanup
+// TODO: process word, pages, libreoffice files
 
 const $ = document.getElementById.bind(document)
 const textarea = $('textarea')
 const counter  = $('word-counter')
 
-let useDict      = false
-let isWhiteSpace = x => ' \t\n\r\v\xa0'.indexOf(x) > -1
-let isValid      = w => useDict ? check(w) : w != 't'
-
 const dict = {}
+let useDict      = false
 
 function check(word) {
   let tree = dict
@@ -20,16 +18,22 @@ function check(word) {
   return tree.$ || false
 }
 
+let whitespace = ' \t\n\r\v\xa0'.split('')
+let elided     = 'cdjlmnst'.split('')
+
+let isElided     = x => elided.includes(x.toLowerCase())
+let isWhitespace = x => whitespace.includes(x)
+let isValid      = w => useDict ? check(w.toLowerCase()) : w != 't'
+
 // TODO: fix this only for french valid chars?
 let isSymbol     = x => {
+  if (!x) return true
   let c = x.charCodeAt(0)
   return !((48  <= c && c <= 57 )   // decimals
          ||(65  <= c && c <= 90 )   // uppercase
          ||(97  <= c && c <= 122)   // lowercase
          ||(192 <= c && c <= 246))  // extended 1
 }
-
-let elided = 'cdjlmnst'.split('')
 
 function countWords(txt) {
   let i = 0 // current position
@@ -45,27 +49,35 @@ function countWords(txt) {
   while (i < length) {
     let c = txt[i]
 
-    if (isWhiteSpace(c)) {
+    if (isWhitespace(c)) {
       // whitespace is at the end of a word
-      // TODO: this is shit
-      if (p < i && (!composed || (composed && isValid(word()))) || (composed && !composed_counted)) {
-        count++
+      if (p < i) {
+        if (!composed || composed && isValid(word())) count++
       }
+      else if (composed && !composed_counted) count++
 
-      while (isWhiteSpace(txt[++i])) {}
-
+      while (++i < length && isWhitespace(txt[i]));
       composed = false
       composed_counted = false
-
       p = i
       continue
     }
 
     // elided words
-    if (c == "'" && elided.includes(word().toLowerCase())) {
-      count++
-      p = ++i
-      continue
+    if (c == "'") {
+      if (word().toLowerCase() == 'l') {
+        let [o, n, _] = txt.substr(i+1, 3).toLowerCase()
+        if (o == 'o' && n == 'n' && isSymbol(_)) {
+          p = ++i
+          continue
+        }
+      }
+
+      if (isElided(word())) {
+        count++
+        p = ++i
+        continue
+      }
     }
 
     // composed words
