@@ -1,4 +1,3 @@
-// TODO: actually maybe using a prefix tree is overkill (and uses too much memory)
 // TODO: cleanup
 // TODO: process word, pages, libreoffice files
 
@@ -6,19 +5,15 @@ const $ = document.getElementById.bind(document)
 const textarea = $('textarea')
 const counter  = $('word-counter')
 
-const dict = {}
-let useDict      = false
+const dict = new Set()
+let useDict = false
 
 function check(word) {
-  let tree = dict
-  for (let i = 0, c = word.length; i < c; i++) {
-    let x = word[i]
-    if (!(tree = tree[x])) return false
-  }
-  return tree.$ || false
+  return dict.has(word)
 }
 
 let whitespace = ' \t\n\r\v\xa0'.split('')
+// TODO: should we count `quelqu'`?
 let elided     = 'cdjlmnst'.split('')
 
 let isElided     = x => elided.includes(x.toLowerCase())
@@ -126,7 +121,8 @@ fetch('./dict.txt')
   .then(function(response) {
     let reader = response.body.getReader()
     let decoder = new TextDecoder('utf-8')
-    let tree = dict
+    // let tree = dict
+    let queue = ''
 
     reader.read().then(function processDict({ done, value }) {
       if (done) {
@@ -136,19 +132,17 @@ fetch('./dict.txt')
         return
       }
 
-      let txt = decoder.decode(new Uint8Array(value))
+      let txt = queue + decoder.decode(new Uint8Array(value))
+      let p = 0
 
       for (let i = 0, c = txt.length; i < c; i++) {
         if (txt[i] == '\n') {
-          tree.$ = true
-          tree = dict
-        }
-        else {
-          let x = txt[i]
-          if (!tree[x]) tree[x] = {}
-          tree = tree[x]
+          dict.add(txt.substring(p, i))
+          p = i + 1
         }
       }
+
+      queue = txt.substring(p)
 
       return reader.read().then(processDict)
     })

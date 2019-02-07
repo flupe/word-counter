@@ -15,7 +15,7 @@
 
       #textarea {
         display: block;
-        margin: 30px 0 0;
+        margin: 30px 0 40px;
         width: 100%;
         height: 320px;
       }
@@ -30,6 +30,11 @@
         margin: 30px 0;
         padding: 0;
         list-style: none;
+      }
+
+      #stats li {
+        display: inline-block;
+        margin-right: 50px;
       }
 
       #stats li span:first-child {
@@ -53,17 +58,49 @@
     <main>
       <h2>Compteur de mots inclusif</h2>
       <p>Cet outil est un compteur de mots pour la langue française.
-      Il tient compte des règles précisées <a href="http://www.h-k.fr/publications/data/20r.ps/20r.ps.comment-compter-les-mots.pdf">ici</a>, et de l'écriture inclusive réalisée à l'aide de points médians (·) ou points (.).
-      <br>
-      <br>
-      Attention toutefois, j'ai pas fait beaucoup de tests donc à prendre avec des pincettes lol.
+      Il tient compte des règles précisées plus bas, et tolère l'écriture inclusive réalisée à l'aide de points médians (·) ou points (.).
       </p>
+
       <ul id="stats">
         <li><span>Mots</span> <span id="word-counter">0</span></li>
+        <li><span>Phrases</span> <span>...</span></li>
       </ul>
-      <textarea id="textarea" placeholder="Entrez ici le texte à compter.">
-      </textarea>
+
+      <textarea id="textarea" placeholder="Entrez ici le texte à compter."></textarea>
+
       <p id="loading">Chargement du dictionnaire…</p>
+
+      <h2>Règles employées</h2>
+
+      <h3>Mots contractés et voyelles élidées</h3>
+      <p>Les mots contractés et voyelles élidées comptent pour un mot.</p>
+      <p>Exemples :</p>
+      <ul>
+        <li><em>C'est faux</em> (3 mots)</li>
+        <li><em>Je n'aime pas ça</em> (5 mots)</li>
+      </ul>
+
+      <h3>Lettres euphoniques</h3>
+      <p>Les lettres euphoniques ne sont pas considérées comme des mots.</p>
+      <p>Exemples :</p>
+      <ul>
+        <li><em>Où va-t-il ?</em> (3 mots)</li>
+        <li><em>N'y a-t-il pas de place ?</em> (7 mots)</li>
+        <li><em>Que l'on fasse</em> (3 mots)</li>
+      </ul>
+
+      <h3>Mots composés</h3>
+      <p>Chaque fragment d'un mot composé est comptabilisé s'il a du sens en étant isolé.</p>
+      <p>Exemples :</p>
+      <ul>
+        <li><em>Cerf-volant</em> (2 mots)</li>
+        <li><em>C'est-à-dire</em> (4 mots)</li>
+        <li><em>Socio-économique</em> (1 mot)</li>
+        <li><em>Spatio-temporel</em> (1 mot)</li>
+      </ul>
+
+      <h3>Ponctuation</h3>
+      <p>Les signes de ponctuation ne comptent pas.</p>
     </main>
     <script src="main.js"></script>
   </body>
