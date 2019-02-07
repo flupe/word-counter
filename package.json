@@ -1,0 +1,16 @@
+{
+  "name": "word-counter",
+  "version": "1.0.0",
+  "repository": "https://github.com/flupe/word-counter.git",
+  "author": "flupe <lucas@escot.me>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^24.1.0",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-jest": "^24.1.0"
+  }
+}
